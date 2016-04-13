@@ -25,7 +25,7 @@ class Data(object):
 		self.MINIMUM_GENERATOR = "Minimum Generator"
 		self.NUMBER_GENERATOR = "Number Generator"
 		self.CUSTOMER_SATISFACTION_NAME = "Customer Satisfaction Name"
-
+		self.CUSTOMER_SATISFACTION_RATING = "Customer Satisfaction Rating"
 
 		##################################################################################################################################################################
 		# @employees : this is the number of employees in the demo. This will eventually be used to calculate all of the locations that will actually be used and also
@@ -38,7 +38,7 @@ class Data(object):
 		# @names : these are all of the randomly generated names from the API that we've accumulated so we dont have to call the API every time
 		##################################################################################################################################################################
 
-		self.employees = 80000
+		self.employees = 1000
 		self.department_depth = 6
 		self.employee_count = 0
 		self.hq_split = 5
@@ -212,7 +212,7 @@ class Data(object):
 						location_index -= 1
 
 
-		if self.employees < 1000: 
+		if self.employees <= 1000: 
 			tier = ["Tier 1"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 2 }, 
@@ -221,7 +221,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 5 },
 			{"Title" : "Manager", "Number Generator" : 9 },
 			{"Title" : "Individual Contributor", "Number Generator" : 1 }])
-		elif self.employees < 3000:
+		elif self.employees <= 3000:
 			tier = ["Tier 1"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 2}, 
@@ -231,7 +231,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 6 },
 			{"Title" : "Manager", "Number Generator" : 13 },
 			{"Title" : "Individual Contributor", "Number Generator" : 0 }])
-		elif self.employees < 5000:
+		elif self.employees <= 5000:
 			tier = ["Tier 1", "Tier 2"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 2 }, 
@@ -241,7 +241,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 7 },
 			{"Title" : "Manager", "Number Generator" : 14 },
 			{"Title" : "Individual Contributor", "Number Generator" : 1 }])
-		elif self.employees < 10000:
+		elif self.employees <= 10000:
 			tier = ["Tier 1", "Tier 2"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 3 }, 
@@ -251,7 +251,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 8 },
 			{"Title" : "Manager", "Number Generator" : 14 },
 			{"Title" : "Individual Contributor", "Number Generator" : 1 }])
-		elif self.employees < 20000:
+		elif self.employees <= 20000:
 			tier = ["Tier 1", "Tier 2", "Tier 3"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 3 }, 
@@ -261,7 +261,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 9 },
 			{"Title" : "Manager", "Number Generator" : 13 },
 			{"Title" : "Individual Contributor", "Number Generator" : 1 }])
-		elif self.employees < 30000:
+		elif self.employees <= 30000:
 			tier = ["Tier 1", "Tier 2", "Tier 3"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 3 }, 
@@ -271,7 +271,7 @@ class Data(object):
 			{"Title" : "Director", "Number Generator" : 9 },
 			{"Title" : "Manager", "Number Generator" : 15 },
 			{"Title" : "Individual Contributor", "Number Generator" : 1 }])
-		elif self.employees < 50000:
+		elif self.employees <= 50000:
 			tier = ["Tier 1", "Tier 2", "Tier 3"]
 			choose_country_tiers(tier)
 			self.hierarchy_vals.extend([{"Title" : "Chief", "Number Generator" : 4 }, 
@@ -544,12 +544,35 @@ class Data(object):
 				}
 				gender_is_incorrect = False
 
-	def add_performance_rating_and_customer_satisfaction(self):
-		performance_rating_random = self.random_val(0, 100)
-		print performance_rating_random, self.PERFORMANCE_OPTIONS, self.PERFORMANCE_RATING
-		performance_rating = (val[self.PERFORMANCE_RATING_NAME] for val in self.attributes[self.PERFORMANCE_RATING][self.PERFORMANCE_OPTIONS] if performance_rating_random > val[self.MINIMUM_GENERATOR] and performance_rating_random < val[self.NUMBER_GENERATOR])
-		print performance_rating
+	##################################################################################################################################################################
+	# @add_performance_rating_and_customer_satisfaction : This will add performance rating and customer satisfaction as new attributes. It does this based on the attributes
+	# variable. The customer satisfaction is based on the performance rating because they have to be correlated so its dictionary is the values for the performance rating. 
+	##################################################################################################################################################################
 
+	def add_performance_rating_and_customer_satisfaction(self):
+
+		def choose_customer_satisfaction(customer_satisfaction):
+			customer_satisfaction_random_val = self.random_val(1, 100)
+			for val in self.attributes[self.CUSTOMER_SATISFACTION][customer_satisfaction]:
+				if customer_satisfaction_random_val > val[self.MINIMUM_GENERATOR] and customer_satisfaction_random_val <= val[self.NUMBER_GENERATOR]:
+					return val[self.CUSTOMER_SATISFACTION_NAME]
+		performance_rating_chosen = str
+		performance_rating_random = self.random_val(1, 100)
+		for val in self.attributes[self.PERFORMANCE_RATING][self.PERFORMANCE_OPTIONS]:
+			if performance_rating_random > val[self.MINIMUM_GENERATOR] and performance_rating_random <= val[self.NUMBER_GENERATOR]:
+				performance_rating_chosen = val[self.PERFORMANCE_RATING_NAME]
+		if performance_rating_chosen == self.EXCEEDS:
+			customer_satisfaction_chosen = choose_customer_satisfaction(self.EXCEEDS)
+		elif performance_rating_chosen == self.SOMEWHAT_EXCEEDS:
+			customer_satisfaction_chosen = choose_customer_satisfaction(self.SOMEWHAT_EXCEEDS)
+		elif performance_rating_chosen == self.MEETS:
+			customer_satisfaction_chosen = choose_customer_satisfaction(self.MEETS)
+		else:
+			customer_satisfaction_chosen = choose_customer_satisfaction(self.DOES_NOT_MEET)
+		return {
+			"Performance Rating" : performance_rating_chosen,
+			"Customer Satisfaction Rating" : customer_satisfaction_chosen
+		}
 
 
 	##################################################################################################################################################################
@@ -558,7 +581,7 @@ class Data(object):
 
 	def print_results(self):
 		with open('hierarchy.csv', 'w') as hierarchy_csv:
-			header = ["ID", "First Name", "Last Name", "Department", "Position", "Level", "Sub-Department", "Manager", "Location Hierarchy 1", "Location Hierarchy 2", "Location Hierarchy 3", "Location Hierarchy 4", "Gender", "Birth Date", "Generation", "Hire Date", "Tenure"]
+			header = ["ID", "First Name", "Last Name", "Department", "Position", "Level", "Sub-Department", "Manager", "Location Hierarchy 1", "Location Hierarchy 2", "Location Hierarchy 3", "Location Hierarchy 4", "Gender", "Birth Date", "Generation", "Hire Date", "Tenure", self.CUSTOMER_SATISFACTION_RATING, self.PERFORMANCE_RATING]
 			writer = csv.DictWriter(hierarchy_csv, fieldnames=header)
 			writer.writeheader()
 			for line in self.hierarchy:
@@ -578,7 +601,9 @@ class Data(object):
 					'Birth Date' : line['Birth Date'],
 					'Generation' : line['Generation'],
 					'Hire Date' : line['Hire Date'],
-					'Tenure' : line['Tenure']})
+					'Tenure' : line['Tenure'],
+					self.PERFORMANCE_RATING : line[self.PERFORMANCE_RATING],
+					self.CUSTOMER_SATISFACTION_RATING : line[self.CUSTOMER_SATISFACTION_RATING]})
 
 
 data = Data()
