@@ -1,0 +1,6 @@
+Glint Fields,firstName,lastName,email,status,hierarchy1Level1,hierarchy1Level2,hierarchy1Level3,hierarchy1Level4,hierarchy2Level1,hierarchy2Level2,hierarchy2Level3,hierarchy2Level4,userAttribute1,userAttribute2,userAttribute3,userAttribute4,userAttribute6,userAttribute7,userAttribute8,userAttribute9,userAttribute10,userAttribute11,userAttribute12,userAttribute13,userAttribute14,userAttribute15,userAttribute16
+Custom fields,First Name,Last Name,Email Address,Status,Location Hierarchy 1,Location Hierarchy 2,Location Hierarchy 3,Location Hierarchy 4,Team Level 1,Team Level 2,Team Level 3,Team Level 4,Position,Manager Email,ID,Sub-Department,Department,Gender,Birth Date,Generation,Hire Date,Performance Rating,Customer Satisfaction Rating,Historical User Group,Level,Manager,Tenure
+Type,String,String,String,String,String,String,String,String,String,String,String,String,String,HierarchyManagerEmail,String,String,String,String,String,String,HireDate,String,String,String,String,String,String
+Report fields,N,N,N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
+Filter fields,N,N,N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
+Include in comments filtering,N,N,N,N,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y

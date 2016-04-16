@@ -8,7 +8,6 @@ import datetime
 import codecs
 import re
 import matplotlib.pyplot as plt
-import numpy
 
 
 class Data(object):
@@ -28,6 +27,7 @@ class Data(object):
         self.CUSTOMER_SATISFACTION_RATING = "Customer Satisfaction Rating"
         self.AVERAGE = "Average"
         self.STDDEV = "Standard Deviation"
+        self.EMAIL_ADDRESS = "Email Address"
         self.DEPARTMENT_1 = "Operations"
         self.DEPARTMENT_2 = "Engineering"
         self.DEPARTMENT_3 = "Marketing"
@@ -35,6 +35,21 @@ class Data(object):
         self.DEPARTMENT_5 = "Sales"
         self.DEPARTMENT_6 = "Finance"
         self.DEPARTMENT_7 = "HR"
+        self.DRIVER_1 = "eSat"
+        self.DRIVER_2 = "Career"
+        self.DRIVER_3 = "Empowerment"
+        self.DRIVER_4 = "Recognition"
+        self.DRIVER_5 = "Balance"
+        self.DRIVER_6 = "Prospects"
+        self.DRIVER_7 = "Resources"
+        self.DRIVER_8 = "Team"
+        self.DRIVER_9 = "Feedback"
+        self.CLIENT = "marshmallow"
+        self.DEPARTMENT = "Department"
+        self.DRIVER = "Driver"
+        self.SCORE = "Score"
+        self.SUB_DEPARTMENT = "Sub-Department"
+        self.TITLE = "Title"
 
         """
         @employees : this is the number of employees in the demo. This will eventually be used to calculate all of
@@ -51,6 +66,7 @@ class Data(object):
         @remote_employee : this is the chance of choosing a remote employee on a scale of 1 to 10.
         @names : these are all of the randomly generated names from the API that we've accumulated so we dont have to
         call the API every time
+        @employee_survey_results : this is the final output for the driver values.
         """
 
         self.employees = 1000
@@ -59,6 +75,34 @@ class Data(object):
         self.us_split = 9
         self.remote_employee = 1
         self.names = []
+        self.employee_survey_results = []
+        self.CEO = {
+            'Position': "CEO",
+            'First Name': "James",
+            'Last Name': "Barnetty",
+            'Email Address': "jbarnetty@{client}.com".format(client=self.CLIENT),
+            'Gender': "Male",
+            'Birth Date': "12/8/1960",
+            'Generation': "Baby Boomer",
+            'Hire Date': "1/5/2000",
+            'Tenure': "7+ Years",
+            'Department': "Sales",
+            'Sub-Department': "",
+            'Location Hierarchy 1': "NA",
+            'Location Hierarchy 2': "United States",
+            'Location Hierarchy 3': "California",
+            'Location Hierarchy 4': "San Francisco",
+            'Team Level 1': "",
+            'Team Level 2': "",
+            'Team Level 3': "",
+            'Team Level 4': "",
+            'Manager': "",
+            'ID': 0,
+            'Level': 0,
+            'Performance Rating': "",
+            'Customer Satisfaction Rating': "",
+            'Manager Email': ""
+        }
 
         """
         # @hierarchy_breakdown : this is the number of reports that will be generated for that manager for each manager.
@@ -77,6 +121,8 @@ class Data(object):
         self.hierarchy_level_1 = {}
         self.hierarchy_level_2 = {}
         self.hierarchy_level_3 = {}
+        self.direct_manager = {}
+        self.team_hierarchy = {0 : self.CEO}
 
         # These are the departments that we'll be using throughout the demo
         self.departments = [self.DEPARTMENT_1, self.DEPARTMENT_2, self.DEPARTMENT_3, self.DEPARTMENT_4,
@@ -94,7 +140,7 @@ class Data(object):
                                           "Phillippines", "Japan", "CA"]}
 
         """
-        @location_countries : These are all of the countries taht can be chosen. We added the states in too, so we'll
+        @location_countries : These are all of the countries that can be chosen. We added the states in too, so we'll
         filter down as far as possible to see if keys exist.
         If the key doesn't exist then we'll stop and say thats the last of the hierarchy. If the HQ doesn't exist
         there's a split between the Other locations. If
@@ -181,74 +227,126 @@ class Data(object):
             {"Location Hierarchy 1": "APAC", "Location Hierarchy 2": "Indonesia", "Location Hierarchy 3": "Jakarta",
              "Location Hierarchy 4": ""}]
 
-        self.drivers_values = dict(Operations=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                                   Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                                   Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                                   Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                                   Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                                   Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                                   Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                                   Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                                   Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   Engineering=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                                    Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                                    Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                                    Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                                    Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                                    Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                                    Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                                    Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                                    Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   Marketing=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                                  Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                                  Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                                  Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                                  Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                                  Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                                  Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                                  Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                                  Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   Support=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                                Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                                Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                                Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                                Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                                Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                                Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                                Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                                Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   Sales=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                              Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                              Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                              Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                              Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                              Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                              Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                              Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                              Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   Finance=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                                Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                                Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                                Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                                Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                                Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                                Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                                Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                                Feedback={self.AVERAGE: 68, self.STDDEV: 13}),
-                                   HR=dict(eSat={self.AVERAGE: 69, self.STDDEV: 13},
-                                           Career={self.AVERAGE: 67, self.STDDEV: 13},
-                                           Empowerment={self.AVERAGE: 73, self.STDDEV: 13},
-                                           Recognition={self.AVERAGE: 64, self.STDDEV: 13},
-                                           Balance={self.AVERAGE: 68, self.STDDEV: 13},
-                                           Prospects={self.AVERAGE: 76, self.STDDEV: 13},
-                                           Resources={self.AVERAGE: 71, self.STDDEV: 8},
-                                           Team={self.AVERAGE: 74, self.STDDEV: 13},
-                                           Feedback={self.AVERAGE: 68, self.STDDEV: 13})
+        """
+        @drivers_values : this is the average and standard deviation for every one of the department and their scores
+        for the drivers.
+        """
+
+        self.drivers_values = dict(Operations=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 69, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_2, self.AVERAGE: 67, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_3, self.AVERAGE: 73, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_4, self.AVERAGE: 64, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_5, self.AVERAGE: 68, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_6, self.AVERAGE: 76, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_7, self.AVERAGE: 71, self.STDDEV: 8},
+                                               {self.DRIVER: self.DRIVER_8, self.AVERAGE: 74, self.STDDEV: 13},
+                                               {self.DRIVER: self.DRIVER_9, self.AVERAGE: 68, self.STDDEV: 13}],
+                                   Engineering=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 58, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_2, self.AVERAGE: 56, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_3, self.AVERAGE: 62, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_4, self.AVERAGE: 53, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_5, self.AVERAGE: 57, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_6, self.AVERAGE: 62, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_7, self.AVERAGE: 51, self.STDDEV: 8},
+                                                {self.DRIVER: self.DRIVER_8, self.AVERAGE: 62, self.STDDEV: 13},
+                                                {self.DRIVER: self.DRIVER_9, self.AVERAGE: 55, self.STDDEV: 13}],
+                                   Marketing=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 66, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_2, self.AVERAGE: 64, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_3, self.AVERAGE: 70, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_4, self.AVERAGE: 62, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_5, self.AVERAGE: 66, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_6, self.AVERAGE: 73, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_7, self.AVERAGE: 69, self.STDDEV: 8},
+                                              {self.DRIVER: self.DRIVER_8, self.AVERAGE: 72, self.STDDEV: 13},
+                                              {self.DRIVER: self.DRIVER_9, self.AVERAGE: 66, self.STDDEV: 13}],
+                                   Support=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 68, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_2, self.AVERAGE: 65, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_3, self.AVERAGE: 71, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_4, self.AVERAGE: 62, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_5, self.AVERAGE: 66, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_6, self.AVERAGE: 75, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_7, self.AVERAGE: 70, self.STDDEV: 8},
+                                            {self.DRIVER: self.DRIVER_8, self.AVERAGE: 72, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_9, self.AVERAGE: 66, self.STDDEV: 13}],
+                                   Sales=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 64, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_2, self.AVERAGE: 62, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_3, self.AVERAGE: 68, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_4, self.AVERAGE: 58, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_5, self.AVERAGE: 64, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_6, self.AVERAGE: 72, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_7, self.AVERAGE: 67, self.STDDEV: 8},
+                                          {self.DRIVER: self.DRIVER_8, self.AVERAGE: 71, self.STDDEV: 13},
+                                          {self.DRIVER: self.DRIVER_9, self.AVERAGE: 64, self.STDDEV: 13}],
+                                   Finance=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 71, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_2, self.AVERAGE: 69, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_3, self.AVERAGE: 75, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_4, self.AVERAGE: 66, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_5, self.AVERAGE: 70, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_6, self.AVERAGE: 78, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_7, self.AVERAGE: 73, self.STDDEV: 8},
+                                            {self.DRIVER: self.DRIVER_8, self.AVERAGE: 76, self.STDDEV: 13},
+                                            {self.DRIVER: self.DRIVER_9, self.AVERAGE: 70, self.STDDEV: 13}],
+                                   HR=[{self.DRIVER: self.DRIVER_1, self.AVERAGE: 75, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_2, self.AVERAGE: 72, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_3, self.AVERAGE: 77, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_4, self.AVERAGE: 69, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_5, self.AVERAGE: 73, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_6, self.AVERAGE: 80, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_7, self.AVERAGE: 75, self.STDDEV: 8},
+                                       {self.DRIVER: self.DRIVER_8, self.AVERAGE: 79, self.STDDEV: 13},
+                                       {self.DRIVER: self.DRIVER_9, self.AVERAGE: 73, self.STDDEV: 13}]
                                    )
 
         """
-        These are the values for the hierarchy that will show up for the different people. Currently the highest
-        level is Chief and then down to the Employee
+        @department_hierarchy : This is the hierarchy of the departments which we'll use to organize all of the
+        managers
+        """
+
+        self.department_hierarchy = {"Engineering": ["Software Engineering", "Hardware Engineering",
+                                                     "Product Management"],
+                                     "Software Engineering": ["Software Research", "Software Architecture",
+                                                              "Software QA", "Software Development"],
+                                     "Hardware Engineering": ["Hardware Research", "Hardware Architecture",
+                                                              "Hardware Development", "Hardware QA"],
+                                     "Product Management": ["Mobile", "Search", "Circuitry", "Processor"],
+                                     "Software Research": ["Machine Learning Research", "Search Optimization Research",
+                                                           "Machine Behavior Research", "Structured Data Research",
+                                                           "Mobile Software Research"],
+                                     "Software Architecture": ["Machine Learning Architecture",
+                                                               "Search Optimization Architecture",
+                                                               "Machine Behavior Architecture",
+                                                               "Data Structure Architecture",
+                                                               "Mobile Software Architecture"],
+                                     "Software QA": ["Machine Learning QA", "Search Optimization QA",
+                                                     "Machine Behavior QA", "Data Structure QA", "Mobile Software QA"],
+                                     "Software Development": ["Structured Data Development",
+                                                              "Search Optimization Development",
+                                                              "Machine Learning Development",
+                                                              "Mobile Software Development",
+                                                              "Machine Behavior Development"],
+                                     "Hardware Research": ["Hardware Optimization Research", "Circuitry Research",
+                                                           "Hardware Performance Research",
+                                                           "Processor Optimization Research", "Materials Research"],
+                                     "Hardware Architecture": ["Hardware Optimization Architecture",
+                                                               "Circuitry Architecture",
+                                                               "Hardware Performance Architecture",
+                                                               "Processor Optimization Architecture",
+                                                               "Materials Architecture"],
+                                     "Hardware Development": ["Hardware Optimization Development",
+                                                              "Circuitry Development",
+                                                              "Hardware Performance Development",
+                                                              "Processor Optimization Development",
+                                                              "Materials Development"],
+                                     "Hardware QA": ["Hardware Optimization QA", "Circuitry QA",
+                                                     "Hardware Performance QA", "Processor Optimization QA",
+                                                     "Materials QA"],
+                                     "Mobile": ["Mobile Architecture", "Mobile Front-end", "Mobile Back-end",
+                                                "Mobile UX", "Mobile UI"],
+                                     "Search": ["Search Architecture", "Search Front-end", "Search Back-end",
+                                                "Search UX", "Search UI"]
+                                     }
+
+        """
         @hierarchy_vals : this has the title of the position and then a number generator which is the likelihood of
         having the number of positions below it in the dictionary array
         """
@@ -340,7 +438,7 @@ class Data(object):
         self.hierarchy = []
 
     """
-    # @create_structure : This creates the structure for the actual demo based on the number of employees. What this
+    @create_structure : This creates the structure for the actual demo based on the number of employees. What this
     does is it says the number of managers in the hierarchy and which manager titles and also the locations that will
     exist in the demo based on tiering.
     """
@@ -472,18 +570,22 @@ class Data(object):
 
     def define_hierarchy(self):
         number_of_hierarchy = {}
+        self.hierarchy.append(self.CEO)
         for val in self.departments:
             self.hierarchy.append(self.add_position(
                 self.hierarchy_vals[0]['Title'],
                 val,
                 0,
                 0,
-                ""))
+                "jbarnetty@{client}.com".format(client=self.CLIENT),
+                0))
             number_of_hierarchy[self.employee_count] = self.random_val(1, self.hierarchy_vals[0]['Number Generator'])
         self.hierarchy_breakdown = dict((val, range(number_of_hierarchy[val])) for val in number_of_hierarchy)
         self.exec_position = dict((executive['ID'], executive['Position']) for executive in self.hierarchy)
         self.exec_department = dict((executive['ID'], executive['Department']) for executive in self.hierarchy)
+        self.sub_department = dict((executive['ID'], executive['Sub-Department']) for executive in self.hierarchy)
         self.exec_level = dict((executive['ID'], executive['Level']) for executive in self.hierarchy)
+        self.manager_email = dict((executive['ID'], executive['Email Address']) for executive in self.hierarchy)
         # iterate through the list of the entire hierarchy structure
         for index, hierarchy in enumerate(self.hierarchy_vals):
             # if its not the first one because that is executives
@@ -494,14 +596,17 @@ class Data(object):
                         self.hierarchy.append(self.add_position(
                             self.hierarchy_vals[index]['Title'],
                             self.exec_department[position],
+                            level,
                             position,
-                            self.exec_level[position] + 1,
-                            self.exec_department[position] + " Department " + str(level)))
+                            self.manager_email[position],
+                            self.exec_level[position] + 1))
                         number_of_hierarchy[self.employee_count] = self.random_val(1, self.hierarchy_vals[index][
                             'Number Generator'])
                 self.hierarchy_breakdown = dict((val, range(number_of_hierarchy[val])) for val in number_of_hierarchy)
                 self.exec_position = dict((executive['ID'], executive['Position']) for executive in self.hierarchy)
                 self.exec_department = dict((executive['ID'], executive['Department']) for executive in self.hierarchy)
+                self.sub_department = dict(
+                    (executive['ID'], executive['Sub-Department']) for executive in self.hierarchy)
                 self.exec_level = dict((executive['ID'], executive['Level']) for executive in self.hierarchy)
                 self.direct_manager = dict((executive['ID'], executive['Manager']) for executive in self.hierarchy)
                 self.hierarchy_level_1 = dict(
@@ -510,6 +615,8 @@ class Data(object):
                     (executive['ID'], executive['Location Hierarchy 2']) for executive in self.hierarchy)
                 self.hierarchy_level_3 = dict(
                     (executive['ID'], executive['Location Hierarchy 3']) for executive in self.hierarchy)
+                self.manager_email = dict(
+                    (executive['ID'], executive['Email Address']) for executive in self.hierarchy)
 
     """
     @random_val : this going to be a random number generator which will be reference by all of the other methods.
@@ -529,22 +636,26 @@ class Data(object):
     are added to the positions dictionary and then sent back.
     """
 
-    def add_position(self, position, department, manager, level, sub_dep):
+    def add_position(self, position, department, manager_sub_number, manager, manager_email, level):
         self.employee_count += 1
         positions = {
             'Position': position,
             'Manager': manager,
+            'Manager Email': manager_email,
             'ID': self.employee_count,
             'Level': level,
             'Department': department,
-            'Sub-Department': sub_dep
+            'Historical User Group': "Historical User",
+            'Status': "ACTIVE"
+
         }
         positions.update(self.add_locations(manager, level))
         gender = self.add_gender()
         positions.update(gender)
+        positions.update(self.add_department_hierarchy(manager, level, department, position, manager_sub_number))
+        positions.update(self.add_first_and_last_name(gender['Gender']))
         positions.update(self.add_birth_date_and_generation())
         positions.update(self.add_hire_date_and_tenure())
-        positions.update(self.add_first_and_last_name(gender['Gender']))
         positions.update(self.add_performance_rating_and_customer_satisfaction())
         return positions
 
@@ -664,6 +775,63 @@ class Data(object):
                 "Gender": self.attributes['Gender']['Attributes'][1]
             }
 
+    def add_department_hierarchy(self, manager, level, department, position, manager_sub_number):
+        proper_team_hierarchy_length = 4
+        employee_team_hierarchy = {}
+        if 0 < level <= 3:
+            # employee_team_hierarchy = self.team_hierarchy[manager]
+            employee_team_level = "Team Level {level}".format(level=level+1)
+            temp_manager = manager
+            employee_team = {}
+            for val in range(0, level):
+                temp_team_str = "Team Level " + str(val+1)
+                employee_team[temp_team_str] = self.sub_department[temp_manager]
+                if val != 0:
+                    temp_manager = self.direct_manager[temp_manager]
+            if department == "Engineering":
+                employee_team_name = self.department_hierarchy[self.sub_department[manager]][manager_sub_number]
+                employee_team[employee_team_level] = employee_team_name
+                employee_team[self.SUB_DEPARTMENT] = employee_team_name
+            else:
+                employee_team_name = "{level} - {manager_sub_number}-{manager}".format(manager=self.sub_department[manager],
+                                                                                  level=level,
+                                                                                  manager_sub_number=manager_sub_number)
+                employee_team[employee_team_level] = employee_team_name
+                employee_team[self.SUB_DEPARTMENT] = employee_team_name
+            employee_team[self.TITLE] = "{position} of {department}".format(position=position,
+                                                                                    department=employee_team[
+                                                                                        self.SUB_DEPARTMENT])
+            for integer in range(1, proper_team_hierarchy_length+1):
+                temp_str = "Team Level " + str(integer)
+                if employee_team.get(temp_str) is None:
+                    employee_team[temp_str] = ""
+            self.team_hierarchy[self.employee_count] = employee_team
+            return employee_team
+        elif level > 3:
+            employee_team_hierarchy = self.team_hierarchy[manager]
+            employee_team_hierarchy[self.TITLE] = "{position} of {department}".format(position=position,
+                                                                                    department=employee_team_hierarchy[
+                                                                                        self.SUB_DEPARTMENT])
+            self.team_hierarchy[self.employee_count] = employee_team_hierarchy
+            return employee_team_hierarchy
+        else:
+            # self.team_hierarchy.append({
+            #     "Team Level 1": department,
+            #     "Team Level 2": "",
+            #     "Team Level 3": "",
+            #     "Team Level 4": "",
+            #     self.SUB_DEPARTMENT: department,
+            #     "Title": "{position} of {department}".format(position=position, department=department)
+            # })
+            return {
+                "Team Level 1": department,
+                "Team Level 2": "",
+                "Team Level 3": "",
+                "Team Level 4": "",
+                self.SUB_DEPARTMENT: department,
+                "Title": "{position} of {department}".format(position=position, department=department)
+            }
+
     """
     @add_birth_date_and_generation : this will add the birth date and the generation based on specific splits
     in the attributes dictionary. This is based on information from our current clients for the splits which should
@@ -677,8 +845,7 @@ class Data(object):
         birth_year = int
         generation_name = str
         for generation in self.attributes['Birth Date']['Birth Year']['Generation']:
-            if generation_random > generation['Minimum Generator'] and generation_random <= generation[
-                'Maximum Generator']:
+            if generation['Minimum Generator'] < generation_random <= generation['Maximum Generator']:
                 year_random = self.random_val(generation['Minimum Year'], generation['Max Year'])
                 birth_year = year_random
                 generation_name = generation['Generation Name']
@@ -731,11 +898,19 @@ class Data(object):
         gender_is_incorrect = True
         while gender_is_incorrect:
             names_random = self.random_val(0, len(self.names) - 1)
+            last_names_random = self.random_val(0, len(self.names) - 1)
             random_gender_generated = self.names[names_random][2]
+            number_generator = self.random_val(1, 1000000)
             if random_gender_generated == gender:
                 return {
                     "First Name": self.names[names_random][0],
-                    "Last Name": self.names[names_random][1][1:]
+                    "Last Name": self.names[last_names_random][1][1:],
+                    "Email Address": "{first_letter}{last_name}{number}@{client}.com".format(
+                        first_letter=self.names[names_random][0],
+                        last_name=self.names[names_random][1][1:],
+                        client=self.CLIENT,
+                        number=number_generator
+                    )
                 }
 
     """
@@ -749,15 +924,13 @@ class Data(object):
         def choose_customer_satisfaction(customer_satisfaction):
             customer_satisfaction_random_val = self.random_val(1, 100)
             for val in self.attributes[self.CUSTOMER_SATISFACTION][customer_satisfaction]:
-                if customer_satisfaction_random_val > val[
-                    self.MINIMUM_GENERATOR] and customer_satisfaction_random_val <= val[self.NUMBER_GENERATOR]:
+                if val[self.MINIMUM_GENERATOR] < customer_satisfaction_random_val <= val[self.NUMBER_GENERATOR]:
                     return val[self.CUSTOMER_SATISFACTION_NAME]
 
         performance_rating_chosen = str
         performance_rating_random = self.random_val(1, 100)
         for val in self.attributes[self.PERFORMANCE_RATING][self.PERFORMANCE_OPTIONS]:
-            if performance_rating_random > val[self.MINIMUM_GENERATOR] and performance_rating_random <= val[
-                self.NUMBER_GENERATOR]:
+            if val[self.MINIMUM_GENERATOR] < performance_rating_random <= val[self.NUMBER_GENERATOR]:
                 performance_rating_chosen = val[self.PERFORMANCE_RATING_NAME]
         if performance_rating_chosen == self.EXCEEDS:
             customer_satisfaction_chosen = choose_customer_satisfaction(self.EXCEEDS)
@@ -780,14 +953,16 @@ class Data(object):
         with open('hierarchy.csv', 'w') as hierarchy_csv:
             header = ["ID", "First Name", "Last Name", "Department", "Position", "Level", "Sub-Department", "Manager",
                       "Location Hierarchy 1", "Location Hierarchy 2", "Location Hierarchy 3", "Location Hierarchy 4",
-                      "Gender", "Birth Date", "Generation", "Hire Date", "Tenure", self.CUSTOMER_SATISFACTION_RATING,
-                      self.PERFORMANCE_RATING]
+                      "Team Level 1", "Team Level 2", "Team Level 3", "Team Level 4",
+                      "Gender", "Birth Date", "Generation", "Email Address", "Manager Email", "Hire Date", "Tenure",
+                      self.CUSTOMER_SATISFACTION_RATING, self.PERFORMANCE_RATING]
             writer = csv.DictWriter(hierarchy_csv, fieldnames=header)
             writer.writeheader()
             for line in self.hierarchy:
                 writer.writerow({'ID': line['ID'],
                                  'First Name': line['First Name'],
                                  'Last Name': line['Last Name'],
+                                 'Email Address': line['Email Address'],
                                  'Department': line['Department'],
                                  'Position': line['Position'],
                                  'Level': line['Level'],
@@ -797,23 +972,44 @@ class Data(object):
                                  'Location Hierarchy 2': line['Location Hierarchy 2'],
                                  'Location Hierarchy 3': line['Location Hierarchy 3'],
                                  'Location Hierarchy 4': line['Location Hierarchy 4'],
+                                 'Team Level 1': line['Team Level 1'],
+                                 'Team Level 2': line['Team Level 2'],
+                                 'Team Level 3': line['Team Level 3'],
+                                 'Team Level 4': line['Team Level 4'],
                                  'Gender': line['Gender'],
                                  'Birth Date': line['Birth Date'],
                                  'Generation': line['Generation'],
                                  'Hire Date': line['Hire Date'],
                                  'Tenure': line['Tenure'],
+                                 'Manager Email': line['Manager Email'],
                                  self.PERFORMANCE_RATING: line[self.PERFORMANCE_RATING],
                                  self.CUSTOMER_SATISFACTION_RATING: line[self.CUSTOMER_SATISFACTION_RATING]})
 
-    def view_scores(scores):
-        plt.hist(scores, bins=[1, 2, 3, 4, 5, 6, 7])
-        plt.show()
+    def view_scores(self):
+        for department in range(len(self.departments)):
+            for driver in self.drivers_values[self.departments[department]]:
+                scores = [person_results["Score"] for person_results in self.employee_survey_results if person_results[
+                    self.DRIVER] == driver[self.DRIVER] and person_results[
+                              self.DEPARTMENT] == self.departments[department]]
+                temp_calc = 0
+                for val in scores:
+                    temp_calc += float(val) / 7 * 100
+                temp_calc = temp_calc / len(scores)
+                print "{department} - {driver} - {temp_calc}".format(department=self.departments[department],
+                                                                     driver=driver, temp_calc=temp_calc)
+                # plt.hist(scores, bins=[1, 2, 3, 4, 5, 6, 7])
+                # title = "{number} - {department} - {driver}".format(number = department,
+                #                                                     department=self.departments[department],
+                #                                                     driver=driver)
+                # plt.title(title)
+                # plt.show()
+        print len(self.hierarchy)
 
     def generate_scores(self):
 
         def choose_correct_score_bucket(value_generated):
             driver_value = int
-            if 94 <= value_generated < 100:
+            if 94 <= value_generated:
                 driver_value = 7
             elif 79 <= value_generated < 94:
                 driver_value = 6
@@ -829,32 +1025,61 @@ class Data(object):
                 driver_value = 1
             return driver_value
 
-        ranged_esat_values = []
-        esat_values = []
+        def esat_random_score_selection_correlation(esat_score, driver):
+            esat_random_score_selection = self.random_val(1, 100)
+            if driver == "Career":
+                if esat_random_score_selection <= 5 and esat_score > 1:
+                    return esat_score - 1
+                elif esat_random_score_selection <= 10 and esat_score < 7:
+                    return esat_score + 1
+                else:
+                    return esat_score
+            elif driver == "Recognition":
+                if esat_random_score_selection <= 18 and esat_score > 1:
+                    return esat_score - 1
+                elif esat_random_score_selection <= 20 and esat_score < 7:
+                    return esat_score + 1
+                else:
+                    return esat_score
+            elif driver == "Prospects":
+                if esat_random_score_selection <= 3 and esat_score > 1:
+                    return esat_score - 1
+                elif esat_random_score_selection <= 50 and esat_score < 7:
+                    return esat_score + 1
+                else:
+                    return esat_score
+
         for person in self.hierarchy:
-            for val in self.drivers_values[person['Department']]:
-                if val == "eSat":
-                    generated_esat_score = random.normalvariate(drivers_values[val][AVERAGE], drivers_values[val][
-                        STDDEV])
-                    driver_final_score = choose_correct_score_bucket(generated_esat_score)
-
-        temp_calc = 0
-        for val in esat_values:
-            temp_calc += float(val) / 7 * 100
-
-            # temp_calc += (val/7) * 100
-        print temp_calc / len(esat_values)
-        print reduce(lambda x, y: x + y, ranged_esat_values) / len(ranged_esat_values)
-
-        return esat_values, ranged_esat_values
+            final_generated_esat_score = int
+            for val in self.drivers_values[person[self.DEPARTMENT]]:
+                if val[self.DRIVER] == "eSat":
+                    generated_esat_score = random.normalvariate(val[self.AVERAGE], val[self.STDDEV])
+                    final_generated_esat_score = choose_correct_score_bucket(generated_esat_score)
+                    generated_score = final_generated_esat_score
+                elif val[self.DRIVER] == "Career" or val[self.DRIVER] == "Recognition" or val[
+                    self.DRIVER] == "Prospects":
+                    generated_score = esat_random_score_selection_correlation(final_generated_esat_score, val[
+                        self.DRIVER])
+                else:
+                    generated_score = random.normalvariate(val[self.AVERAGE], val[self.STDDEV])
+                    generated_score = choose_correct_score_bucket(generated_score)
+                self.employee_survey_results.append({
+                    "Email Address": person[self.EMAIL_ADDRESS],
+                    "Driver": val[self.DRIVER],
+                    "Score": generated_score,
+                    "Department": person[self.DEPARTMENT]
+                })
 
     def print_survey_results(self):
         with open('survey.csv', 'w') as survey_csv:
-            header = ["score"]
+            header = ["Email Address", "Driver", "Score"]
             writer = csv.DictWriter(survey_csv, fieldnames=header)
             writer.writeheader()
-            for esat_score in esat_values:
-                writer.writerow({"score": esat_score})
+            for employee_score in self.employee_survey_results:
+                writer.writerow({"Email Address": employee_score[self.EMAIL_ADDRESS],
+                                 "Driver": employee_score[self.DRIVER],
+                                 "Score": employee_score[self.SCORE]
+                                 })
 
 
 data = Data()
@@ -862,4 +1087,6 @@ data.create_structure()
 data.pull_names()
 data.define_hierarchy()
 data.generate_scores()
+data.view_scores()
 data.print_hierarchy_results()
+data.print_survey_results()
